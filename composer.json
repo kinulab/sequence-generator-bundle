@@ -1,0 +1,36 @@
+{
+    "name": "kinulab/sequence-generator-bundle",
+    "type": "symfony-bundle",
+    "authors": [
+        {
+            "name": "Marc Mauzole",
+            "email": "marc@etic.yt"
+        },
+        {
+            "name": "Johan Desmyter",
+            "email": "johan@etic.yt"
+        }
+    ],
+    "repositories": [
+         {
+             "type": "vcs",
+             "url": "https://github.com/kinulab/sequence-generator-bundle.git"
+         }
+    ],
+    "require": {
+        "php": ">=7.1.0",
+        "doctrine/doctrine-bundle": "~1.9",
+        "doctrine/orm": "^2.5",
+        "symfony/property-access": "^2.3||^3.4||^4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Kinulab\\SequenceGeneratorBundle\\": "src",
+            "Test\\Kinulab\\SequenceGeneratorBundle\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "symfony/phpunit-bridge": "^4.1",
+        "symfony/var-dumper": "^4.1"
+    }
+}

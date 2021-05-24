@@ -1,0 +1,23 @@
+Kinulab\SequenceGeneratorBundle\Entity\CustomSequenceSub:
+  type: entity
+  table: sys_custom_sequence_sub
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    prefix:
+      type: string
+      nullable: true
+    suffix:
+      type: string
+      nullable: true
+  manyToOne:
+    custom_sequence:
+      targetEntity: Kinulab\SequenceGeneratorBundle\Entity\CustomSequence
+      inversedBy: sub_sequences
+      joinColumn:
+        name: custom_sequence_id
+        referencedColumnName: id
+        onDelete: SET NULL
