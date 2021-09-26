@@ -26,6 +26,9 @@ class SequenceGenerator
      */
     public function getNextVal($sequence_name, $object = null)
     {
+
+        $this->checkYearlyRestart($sequence_name);
+
         $this->object = $object;
         /** @var CustomSequence $Sequence */
         $Sequence = $this->repository->findOneBySequenceName($sequence_name);
@@ -68,7 +71,7 @@ class SequenceGenerator
             $this->repository->createSQLSequence($Sequence);
         }else{
             $Sequence->setAllocationSize($CustomSequence->getIncrementBy());
-            $this->repository->alterSQLSequence($Sequence);
+            $this->repository->alterSQLSequence($Sequence, true);
         }
     }
 
@@ -126,6 +129,30 @@ class SequenceGenerator
      */
     private function formatString($string){
         return preg_replace_callback('#\%([^\%]+)\%#', [$this, 'replace'], $string);
+    }
+
+     /**
+     * Check if the sequence needs to be restarted because the year changed
+     */
+    private function checkYearlyRestart(string $sequenceName)
+    {
+        /** @var CustomSequence $Sequence */
+        $sequence = $this->repository->findOneBySequenceName($sequenceName);
+
+        $lastRun = $sequence->getLastRun();
+
+        if(!$lastRun){
+            $sequence->setLastRun(new \DateTimeImmutable());
+        }
+
+        if(date('Y') != $lastRun->format('Y')){
+            $this->restartYearlySequence($sequence);
+        }
+    }
+
+    private function restartYearlySequence(CustomSequence $sequence){
+        $this->initializeSequence($sequence, 1);
+        $sequence->setLastRun(new \DateTimeImmutable());
     }
 
 }

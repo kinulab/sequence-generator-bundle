@@ -72,7 +72,6 @@ class SequenceRepository
      */
     public function getSequenceSQLSchemaByName(string $name): ?Sequence
     {
-        dump($this->getSchemaManager()->listSequences());
         foreach($this->getSchemaManager()->listSequences() as $sequence){
             if($sequence->getName() == $name){
                 return $sequence;
@@ -96,7 +95,7 @@ class SequenceRepository
      * @param int $start
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function alterSQLSequence(Sequence $sequence, int $start = null)
+    public function alterSQLSequence(Sequence $sequence, bool $forceRestart = false, int $start = null)
     {
         $alterSequenceSql = $this->getSchemaManager()
             ->getDatabasePlatform()
@@ -104,10 +103,11 @@ class SequenceRepository
 
         $this->doctrine->getConnection()->exec($alterSequenceSql);
 
-        if($start){
+        if($forceRestart){
+            $restartClause = null === $start ? "RESTART" : "RESTART WITH $start";
             // fonctionne seulement pour PostgreSQL
             $this->doctrine->getConnection()
-                ->exec("ALTER SEQUENCE ".$sequence->getName()." RESTART WITH $start");
+                ->exec("ALTER SEQUENCE ".$sequence->getName()." $restartClause");
         }
     }
 
@@ -126,6 +126,5 @@ class SequenceRepository
     private function getSchemaManager(){
         return $this->doctrine->getConnection()->getSchemaManager();
     }
-
 
 }
