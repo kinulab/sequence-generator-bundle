@@ -32,6 +32,14 @@ Kinulab\SequenceGeneratorBundle\Entity\CustomSequence:
       options:
         default: false
         comment: une séquence indépendante pour chaque couples prefix-suffix unique
+    last_run:
+        type: datetime_immutable
+        nullable: true
+    restart_yearly:
+      type: boolean
+      nullable: false
+      options:
+        default: false
   oneToMany:
     sub_sequences:
       targetEntity: Kinulab\SequenceGeneratorBundle\Entity\CustomSequenceSub

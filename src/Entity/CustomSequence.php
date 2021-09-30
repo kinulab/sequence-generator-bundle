@@ -52,6 +52,16 @@ class CustomSequence
      */
     private $sub_sequences;
 
+    /**
+     * @var boolean
+     */
+    private $restart_yearly = false;
+
+    /**
+     * @var \DateTimeImmutable
+    */
+    private $last_run;
+
     public function __construct(){
         $this->sub_sequences = new ArrayCollection();
         $this->increment_length = 5;
@@ -91,7 +101,7 @@ class CustomSequence
      *
      * @return string
      */
-    public function getLibelle() :string
+    public function getLibelle() :?string
     {
         return $this->libelle;
     }
@@ -115,7 +125,7 @@ class CustomSequence
      *
      * @return string
      */
-    public function getSequenceName() :string
+    public function getSequenceName() :?string
     {
         return $this->sequence_name;
     }
@@ -271,4 +281,51 @@ class CustomSequence
         return $this;
     }
 
+    /**
+     * Set restartYearly
+     *
+     * @param boolean $restartYearly
+     *
+     * @return CustomSequence
+     */
+    public function setRestartYearly($restartYearly)
+    {
+        $this->restart_yearly = $restartYearly;
+
+        return $this;
+    }
+
+    /**
+     * Get restartYearly
+     *
+     * @return boolean
+     */
+    public function getRestartYearly()
+    {
+        return $this->restart_yearly;
+    }
+
+    /**
+     * Get the value of last_run
+     *
+     * @return  \DateTimeImmutable
+     */
+    public function getLastRun()
+    {
+        return $this->last_run;
+    }
+
+    /**
+     * Set the value of last_run
+     *
+     * @param  \DateTimeImmutable  $last_run
+     *
+     * @return  self
+     */
+    public function setLastRun(\DateTimeImmutable $last_run)
+    {
+        $this->last_run = $last_run;
+
+        return $this;
+    }
 }
