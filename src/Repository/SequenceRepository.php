@@ -72,7 +72,6 @@ class SequenceRepository
      */
     public function getSequenceSQLSchemaByName(string $name): ?Sequence
     {
-        dump($this->getSchemaManager()->listSequences());
         foreach($this->getSchemaManager()->listSequences() as $sequence){
             if($sequence->getName() == $name){
                 return $sequence;
