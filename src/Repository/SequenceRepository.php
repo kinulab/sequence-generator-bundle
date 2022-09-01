@@ -37,7 +37,7 @@ class SequenceRepository
         if(!$subSequence){ // on crée la subsequence
             $tableName = $this->doctrine->getClassMetadata(CustomSequenceSub::class)->getTableName();
             $sql = sprintf("INSERT INTO %s (id, custom_sequence_id, prefix, suffix) VALUES (nextval('%s_id_seq'), :sequence_id, :prefix, :suffix)", $tableName, $tableName);
-            $this->doctrine->getConnection()->executeQuery($sql, [':sequence_id' => $sequence->getId(), ':prefix' => $prefix, ':suffix' => $suffix]);
+            $this->doctrine->getConnection()->executeQuery($sql, ['sequence_id' => $sequence->getId(), 'prefix' => $prefix, 'suffix' => $suffix]);
 
             $subSequence = $repo->findOneBy(['custom_sequence' => $sequence, 'prefix' => $prefix, 'suffix' => $suffix]);
 
@@ -62,7 +62,7 @@ class SequenceRepository
             ->getDatabasePlatform()
             ->getSequenceNextValSQL($sequenceName);
 
-        return (int) $this->doctrine->getConnection()->fetchColumn($query);
+        return (int) $this->doctrine->getConnection()->executeQuery($query)->fetchOne();
     }
 
     /**
@@ -97,16 +97,16 @@ class SequenceRepository
      */
     public function alterSQLSequence(Sequence $sequence, int $start = null)
     {
-        $alterSequenceSql = $this->getSchemaManager()
+        $alterSequenceSql = $this->doctrine->getConnection()
             ->getDatabasePlatform()
             ->getAlterSequenceSQL($sequence);
 
-        $this->doctrine->getConnection()->exec($alterSequenceSql);
+        $this->doctrine->getConnection()->executeQuery($alterSequenceSql);
 
         if($start){
             // fonctionne seulement pour PostgreSQL
             $this->doctrine->getConnection()
-                ->exec("ALTER SEQUENCE ".$sequence->getName()." RESTART WITH $start");
+                ->executeQuery("ALTER SEQUENCE ".$sequence->getName()." RESTART WITH $start");
         }
     }
 
@@ -115,16 +115,14 @@ class SequenceRepository
      * @param CustomSequence $CustomSequence
      */
     public function removeSQLSequence(CustomSequence $CustomSequence){
-        $query = $this->getSchemaManager()->getDatabasePlatform()->getDropSequenceSQL($CustomSequence->getSequenceName());
-        $this->doctrine->getConnection()->exec($query);
+        $query = $this->doctrine->getConnection()->getDatabasePlatform()->getDropSequenceSQL($CustomSequence->getSequenceName());
+        $this->doctrine->getConnection()->executeQuery($query);
     }
 
     /**
      * @return PostgreSqlSchemaManager
      */
     private function getSchemaManager(){
-        return $this->doctrine->getConnection()->getSchemaManager();
+        return $this->doctrine->getConnection()->createSchemaManager();
     }
-
-
 }
