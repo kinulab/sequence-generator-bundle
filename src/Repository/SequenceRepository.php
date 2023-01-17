@@ -123,6 +123,6 @@ class SequenceRepository
      * @return PostgreSqlSchemaManager
      */
     private function getSchemaManager(){
-        return $this->doctrine->getConnection()->createSchemaManager();
+        return $this->doctrine->getConnection()->getSchemaManager();
     }
 }
