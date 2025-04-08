@@ -15,11 +15,7 @@ use Doctrine\DBAL\Schema\Sequence;
 class SequenceRepository
 {
 
-    protected $doctrine;
-
-    function __construct(EntityManagerInterface $doctrine) {
-        $this->doctrine = $doctrine;
-    }
+    function __construct(protected EntityManagerInterface $doctrine) { }
 
     public function findOneBySequenceName(string $sequenceName) :CustomSequence
     {
@@ -84,7 +80,7 @@ class SequenceRepository
      * Crée une séquence SQL
      * @param Sequence $sequence
      */
-    public function createSQLSequence(Sequence $sequence)
+    public function createSQLSequence(Sequence $sequence) :void
     {
         $this->getSchemaManager()->createSequence($sequence);
     }
@@ -95,7 +91,7 @@ class SequenceRepository
      * @param int $start
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function alterSQLSequence(Sequence $sequence, int $start = null)
+    public function alterSQLSequence(Sequence $sequence, int $start = null) : void
     {
         $alterSequenceSql = $this->doctrine->getConnection()
             ->getDatabasePlatform()
@@ -114,7 +110,8 @@ class SequenceRepository
      * Remove a sequence
      * @param CustomSequence $CustomSequence
      */
-    public function removeSQLSequence(CustomSequence $CustomSequence){
+    public function removeSQLSequence(CustomSequence $CustomSequence) : void
+    {
         $query = $this->doctrine->getConnection()->getDatabasePlatform()->getDropSequenceSQL($CustomSequence->getSequenceName());
         $this->doctrine->getConnection()->executeQuery($query);
     }
@@ -122,7 +119,8 @@ class SequenceRepository
     /**
      * @return PostgreSqlSchemaManager
      */
-    private function getSchemaManager(){
+    private function getSchemaManager() : PostgreSqlSchemaManager
+    {
         return $this->doctrine->getConnection()->getSchemaManager();
     }
 }

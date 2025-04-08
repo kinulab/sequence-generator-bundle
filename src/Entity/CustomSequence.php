@@ -1,267 +1,164 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Kinulab\SequenceGeneratorBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
+use Kinulab\SequenceGeneratorBundle\Repository\SequenceRepository;
 
+#[ORM\Entity(repositoryClass: SequenceRepository::class)]
+#[ORM\Table(name: 'sys_custom_sequence')]
 class CustomSequence
 {
-    /**
-     * @var integer|null
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
 
-    /**
-     * @var string
-     */
-    private $libelle;
+    #[ORM\Column(length: 255)]
+    private ?string $libelle = null;
 
-    /**
-     * @var string
-     */
-    private $sequence_name;
+    #[ORM\Column(length: 255, unique: true)]
+    private ?string $sequenceName =null;
 
-    /**
-     * @var string|null
-     */
-    private $prefix;
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $prefix = null;
 
-    /**
-     * @var string|null
-     */
-    private $suffix;
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $suffix = null;
 
-    /**
-     * @var integer
-     */
-    private $increment_length;
+    #[ORM\Column(type: 'integer')]
+    private int $incrementLength = 5;
 
-    /**
-     * @var integer
-     */
-    private $increment_by;
+    #[ORM\Column(type: 'integer')]
+    private int $incrementBy = 1;
 
-    /**
-     * @var boolean
-     */
-    private $independant_complement = false;
+    #[ORM\Column(type: 'boolean')]
+    private bool $independantComplement = false;
 
-    /**
-     * @var ArrayCollection
-     */
-    private $sub_sequences;
+    #[ORM\OneToMany(mappedBy: 'customSequence', targetEntity: CustomSequenceSub::class)]
+    private Collection $subSequences;
 
     public function __construct(){
-        $this->sub_sequences = new ArrayCollection();
-        $this->increment_length = 5;
-        $this->increment_by = 1;
+        $this->subSequences = new ArrayCollection();
     }
 
-    public function __toString() {
+    public function __toString() :string
+    {
         return (string) $this->libelle;
     }
 
-    /**
-     * Get id
-     *
-     * @return integer
-     */
     public function getId() :?int
     {
         return $this->id;
     }
 
-    /**
-     * Set libelle
-     *
-     * @param string $libelle
-     *
-     * @return CustomSequence
-     */
-    public function setLibelle(string $libelle) :CustomSequence
+    public function setLibelle(string $libelle) :static
     {
         $this->libelle = $libelle;
 
         return $this;
     }
 
-    /**
-     * Get libelle
-     *
-     * @return string
-     */
-    public function getLibelle() :string
+    public function getLibelle() :?string
     {
         return $this->libelle;
     }
 
-    /**
-     * Set sequenceName
-     *
-     * @param string $sequenceName
-     *
-     * @return CustomSequence
-     */
-    public function setSequenceName(string $sequenceName) :CustomSequence
+    public function setSequenceName(string $sequenceName) :static
     {
-        $this->sequence_name = $sequenceName;
+        $this->sequenceName = $sequenceName;
 
         return $this;
     }
 
-    /**
-     * Get sequenceName
-     *
-     * @return string
-     */
-    public function getSequenceName() :string
+    public function getSequenceName() :?string
     {
-        return $this->sequence_name;
+        return $this->sequenceName;
     }
 
-    /**
-     * Set prefix
-     *
-     * @param string $prefix
-     *
-     * @return CustomSequence
-     */
-    public function setPrefix(?string $prefix) :CustomSequence
+    public function setPrefix(?string $prefix) :static
     {
         $this->prefix = $prefix;
 
         return $this;
     }
 
-    /**
-     * Get prefix
-     *
-     * @return string
-     */
     public function getPrefix() :?string
     {
         return $this->prefix;
     }
 
-    /**
-     * Set suffix
-     *
-     * @param string $suffix
-     *
-     * @return CustomSequence
-     */
-    public function setSuffix(?string $suffix) :CustomSequence
+    public function setSuffix(?string $suffix) :static
     {
         $this->suffix = $suffix;
 
         return $this;
     }
 
-    /**
-     * Get suffix
-     *
-     * @return string
-     */
     public function getSuffix() :?string
     {
         return $this->suffix;
     }
 
-    /**
-     * Set incrementLength
-     *
-     * @param integer $incrementLength
-     *
-     * @return CustomSequence
-     */
-    public function setIncrementLength(int $incrementLength) :CustomSequence
+    public function setIncrementLength(int $incrementLength) :static
     {
-        $this->increment_length = $incrementLength;
+        $this->incrementLength = $incrementLength;
 
         return $this;
     }
 
-    /**
-     * Get incrementLength
-     *
-     * @return integer
-     */
     public function getIncrementLength() :int
     {
-        return $this->increment_length;
+        return $this->incrementLength;
     }
 
-    /**
-     * Set incrementBy
-     *
-     * @param integer $incrementBy
-     *
-     * @return CustomSequence
-     */
-    public function setIncrementBy(int $incrementBy) :CustomSequence
+    public function setIncrementBy(int $incrementBy) :static
     {
-        $this->increment_by = $incrementBy;
+        $this->incrementBy = $incrementBy;
 
         return $this;
     }
 
-    /**
-     * Get incrementBy
-     *
-     * @return integer
-     */
     public function getIncrementBy() :int
     {
-        return $this->increment_by;
+        return $this->incrementBy;
     }
 
-    /**
-     * Set independantComplement
-     *
-     * @param boolean $independantComplement
-     *
-     * @return CustomSequence
-     */
-    public function setIndependantComplement(bool $independantComplement) :CustomSequence
+    public function setIndependantComplement(bool $independantComplement) :static
     {
-        $this->independant_complement = $independantComplement;
+        $this->independantComplement = $independantComplement;
 
         return $this;
     }
 
-    /**
-     * Get independantComplement
-     *
-     * @return boolean
-     */
     public function getIndependantComplement() :bool
     {
-        return $this->independant_complement;
+        return $this->independantComplement;
     }
 
-    /**
-     * @return Collection|CustomSequenceSub[]
-     */
     public function getSubSequences(): Collection
     {
-        return $this->sub_sequences;
+        return $this->subSequences;
     }
 
-    public function addSubSequence(CustomSequenceSub $customSequenceSub): self
+    public function addSubSequence(CustomSequenceSub $customSequenceSub): static
     {
-        if (!$this->sub_sequences->contains($customSequenceSub)) {
-            $this->sub_sequences[] = $customSequenceSub;
+        if (!$this->subSequences->contains($customSequenceSub)) {
+            $this->subSequences[] = $customSequenceSub;
             $customSequenceSub->setCustomSequence($this);
         }
 
         return $this;
     }
 
-    public function removeSubSequence(CustomSequenceSub $customSequenceSub): self
+    public function removeSubSequence(CustomSequenceSub $customSequenceSub): static
     {
-        if ($this->sub_sequences->contains($customSequenceSub)) {
-            $this->sub_sequences->removeElement($customSequenceSub);
+        if ($this->subSequences->contains($customSequenceSub)) {
+            $this->subSequences->removeElement($customSequenceSub);
             // set the owning side to null (unless already changed)
             if ($customSequenceSub->getCustomSequence() === $this) {
                 $customSequenceSub->setCustomSequence(null);

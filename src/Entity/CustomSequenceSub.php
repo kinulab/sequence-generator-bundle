@@ -1,88 +1,75 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Kinulab\SequenceGeneratorBundle\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Entity()]
+#[ORM\Table(name: 'sys_custom_sequence_sub')]
 class CustomSequenceSub
 {
-    /**
-     * @var integer|null
-     */
-    private $id;
 
-    /**
-     * @var CustomSequence
-     */
-    private $custom_sequence;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
 
-    /**
-     * @var string|null
-     */
-    private $prefix;
+    #[ORM\ManyToOne(targetEntity: CustomSequence::class, inversedBy: 'subsequences')]
+    #[ORM\JoinColumn(onDelete: 'CASCADE')]
+    private ?CustomSequence $customSequence = null;
 
-    /**
-     * @var string|null
-     */
-    private $suffix;
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $prefix = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $suffix = null;
 
     public function getSqlSequenceName() :string
     {
-        return $this->custom_sequence->getSequenceName().'_'.$this->id;
+        return $this->customSequence->getSequenceName().'_'.$this->id;
     }
 
-    /**
-     * @return int|null
-     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @return CustomSequence
-     */
-    public function getCustomSequence(): CustomSequence
+    public function getCustomSequence(): ?CustomSequence
     {
-        return $this->custom_sequence;
+        return $this->customSequence;
     }
 
-    /**
-     * @param CustomSequence $custom_sequence
-     */
-    public function setCustomSequence(CustomSequence $custom_sequence): void
+    public function setCustomSequence(CustomSequence $customSequence): static
     {
-        $this->custom_sequence = $custom_sequence;
+        $this->customSequence = $customSequence;
+
+        return $this;
     }
 
-    /**
-     * @return string|null
-     */
     public function getPrefix(): ?string
     {
         return $this->prefix;
     }
 
-    /**
-     * @param string|null $prefix
-     */
-    public function setPrefix(?string $prefix): void
+    public function setPrefix(?string $prefix): static
     {
         $this->prefix = $prefix;
+
+        return $this;
     }
 
-    /**
-     * @return string|null
-     */
     public function getSuffix(): ?string
     {
         return $this->suffix;
     }
 
-    /**
-     * @param string|null $suffix
-     */
-    public function setSuffix(?string $suffix): void
+    public function setSuffix(?string $suffix): static
     {
         $this->suffix = $suffix;
+
+        return $this;
     }
 
 }
