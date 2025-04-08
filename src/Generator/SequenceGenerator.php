@@ -5,7 +5,7 @@ namespace Kinulab\SequenceGeneratorBundle\Generator;
 
 use Doctrine\DBAL\Schema\Sequence;
 use Kinulab\SequenceGeneratorBundle\Entity\CustomSequence;
-use Kinulab\SequenceGeneratorBundle\Repository\SequenceRepository;
+use Kinulab\SequenceGeneratorBundle\Repository\CustomSequenceRepository;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
 class SequenceGenerator
@@ -14,7 +14,7 @@ class SequenceGenerator
     protected $object;
     protected $repository;
 
-    public function __construct(SequenceRepository $repository) {
+    public function __construct(CustomSequenceRepository $repository) {
         $this->repository = $repository;
     }
 
@@ -25,7 +25,7 @@ class SequenceGenerator
      * @return string
      * @throws \Exception
      */
-    public function getNextVal($sequence_name, $object = null)
+    public function getNextVal(string $sequence_name, ?object $object = null) :string
     {
         $this->object = $object;
         /** @var CustomSequence $Sequence */
@@ -46,7 +46,7 @@ class SequenceGenerator
 
         $increment = $this->repository->getNextValue($sql_sequence_name);
 
-        return $prefix.str_pad($increment, $Sequence->getIncrementLength(), '0', STR_PAD_LEFT).$suffix;
+        return $prefix.str_pad(strval($increment), $Sequence->getIncrementLength(), '0', STR_PAD_LEFT).$suffix;
     }
 
     /**
@@ -54,7 +54,8 @@ class SequenceGenerator
      * @param CustomSequence $CustomSequence
      * @param null|int $start
      */
-    public function initializeSequence(CustomSequence $CustomSequence, $start = null){
+    public function initializeSequence(CustomSequence $CustomSequence, ?int $start = null) :void
+    {
 
         $Sequence = $this->repository->getSequenceSQLSchemaByName($CustomSequence->getSequenceName());
 
@@ -77,7 +78,8 @@ class SequenceGenerator
      * Remove a sequence
      * @param CustomSequence $CustomSequence
      */
-    public function removeSequence(CustomSequence $CustomSequence){
+    public function removeSequence(CustomSequence $CustomSequence) :void
+    {
         $this->repository->removeSQLSequence($CustomSequence);
     }
 
@@ -86,7 +88,8 @@ class SequenceGenerator
      * @param type $matches
      * @return type
      */
-    public function replace($matches){
+    public function replace(array $matches) :string
+    {
         switch ($matches[1]){
             case 'year':
                 return date('Y');
@@ -125,8 +128,9 @@ class SequenceGenerator
      * @param type $string
      * @return type
      */
-    private function formatString($string){
-        return preg_replace_callback('#\%([^\%]+)\%#', [$this, 'replace'], $string);
+    private function formatString(?string $string) :?string
+    {
+        return $string === null ? null : preg_replace_callback('#\%([^\%]+)\%#', [$this, 'replace'], $string);
     }
 
 }

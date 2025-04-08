@@ -7,9 +7,9 @@ namespace Kinulab\SequenceGeneratorBundle\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Kinulab\SequenceGeneratorBundle\Repository\SequenceRepository;
+use Kinulab\SequenceGeneratorBundle\Repository\CustomSequenceRepository;
 
-#[ORM\Entity(repositoryClass: SequenceRepository::class)]
+#[ORM\Entity(repositoryClass: CustomSequenceRepository::class)]
 #[ORM\Table(name: 'sys_custom_sequence')]
 class CustomSequence
 {

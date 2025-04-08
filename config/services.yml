@@ -1,0 +1,11 @@
+
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  Kinulab\SequenceGeneratorBundle\:
+    resource: '../src/'
+    exclude:
+      - '../src/Entity/'
+      - '../src/SequenceGeneratorBundle.php'

@@ -4,22 +4,24 @@ declare(strict_types=1);
 
 namespace Kinulab\SequenceGeneratorBundle\Repository;
 
+use Doctrine\ORM\EntityRepository;
 use Kinulab\SequenceGeneratorBundle\Entity\CustomSequence;
 use Kinulab\SequenceGeneratorBundle\Entity\CustomSequenceSub;
-use Kinulab\SequenceGeneratorBundle\Entity\LastRun;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\DBAL\Schema\PostgreSqlSchemaManager;
 use Doctrine\DBAL\Schema\Sequence;
+use Symfony\Bridge\Doctrine\ManagerRegistry;
 
-
-class SequenceRepository
+/**
+ * @extends ServiceEntityRepository<CustomSequenceRepository>
+ */
+class CustomSequenceRepository extends EntityRepository
 {
 
-    function __construct(protected EntityManagerInterface $doctrine) { }
-
-    public function findOneBySequenceName(string $sequenceName) :CustomSequence
+    public function __construct(EntityManagerInterface $em)
     {
-        return $this->doctrine->getRepository(CustomSequence::class)->findOneBy(['sequence_name' => $sequenceName]);
+        parent::__construct($em, $em->getClassMetadata(CustomSequence::class));
     }
 
     public function getSubSequence(CustomSequence $sequence, ?string $prefix, ?string $suffix) :CustomSequenceSub
@@ -28,14 +30,14 @@ class SequenceRepository
             throw new \LogicException("A sequence without independant complement doesn't have sub sequence.");
         }
 
-        $repo = $this->doctrine->getRepository(CustomSequenceSub::class);
-        $subSequence = $repo->findOneBy(['custom_sequence' => $sequence, 'prefix' => $prefix, 'suffix' => $suffix]);
+        $repo = $this->_em->getRepository(CustomSequenceSub::class);
+        $subSequence = $repo->findOneBy(['customSequence' => $sequence, 'prefix' => $prefix, 'suffix' => $suffix]);
         if(!$subSequence){ // on crée la subsequence
-            $tableName = $this->doctrine->getClassMetadata(CustomSequenceSub::class)->getTableName();
+            $tableName = $this->_em->getClassMetadata(CustomSequenceSub::class)->getTableName();
             $sql = sprintf("INSERT INTO %s (id, custom_sequence_id, prefix, suffix) VALUES (nextval('%s_id_seq'), :sequence_id, :prefix, :suffix)", $tableName, $tableName);
-            $this->doctrine->getConnection()->executeQuery($sql, ['sequence_id' => $sequence->getId(), 'prefix' => $prefix, 'suffix' => $suffix]);
+            $this->_em->getConnection()->executeQuery($sql, ['sequence_id' => $sequence->getId(), 'prefix' => $prefix, 'suffix' => $suffix]);
 
-            $subSequence = $repo->findOneBy(['custom_sequence' => $sequence, 'prefix' => $prefix, 'suffix' => $suffix]);
+            $subSequence = $repo->findOneBy(['customSequence' => $sequence, 'prefix' => $prefix, 'suffix' => $suffix]);
 
             $sqlSequence = new Sequence( $subSequence->getSqlSequenceName() );
             $sqlSequence->setAllocationSize( $sequence->getIncrementBy() );
@@ -53,12 +55,12 @@ class SequenceRepository
      */
     public function getNextValue(string $sequenceName) :int
     {
-        $query = $this->doctrine
+        $query = $this->_em
             ->getConnection()
             ->getDatabasePlatform()
             ->getSequenceNextValSQL($sequenceName);
 
-        return (int) $this->doctrine->getConnection()->executeQuery($query)->fetchOne();
+        return (int) $this->_em->getConnection()->executeQuery($query)->fetchOne();
     }
 
     /**
@@ -93,15 +95,16 @@ class SequenceRepository
      */
     public function alterSQLSequence(Sequence $sequence, int $start = null) : void
     {
-        $alterSequenceSql = $this->doctrine->getConnection()
+        $alterSequenceSql = $this->_em
+            ->getConnection()
             ->getDatabasePlatform()
             ->getAlterSequenceSQL($sequence);
 
-        $this->doctrine->getConnection()->executeQuery($alterSequenceSql);
+        $this->_em->getConnection()->executeQuery($alterSequenceSql);
 
         if($start){
             // fonctionne seulement pour PostgreSQL
-            $this->doctrine->getConnection()
+            $this->_em->getConnection()
                 ->executeQuery("ALTER SEQUENCE ".$sequence->getName()." RESTART WITH $start");
         }
     }
@@ -112,8 +115,8 @@ class SequenceRepository
      */
     public function removeSQLSequence(CustomSequence $CustomSequence) : void
     {
-        $query = $this->doctrine->getConnection()->getDatabasePlatform()->getDropSequenceSQL($CustomSequence->getSequenceName());
-        $this->doctrine->getConnection()->executeQuery($query);
+        $query = $this->_em->getConnection()->getDatabasePlatform()->getDropSequenceSQL($CustomSequence->getSequenceName());
+        $this->_em->getConnection()->executeQuery($query);
     }
 
     /**
@@ -121,6 +124,6 @@ class SequenceRepository
      */
     private function getSchemaManager() : PostgreSqlSchemaManager
     {
-        return $this->doctrine->getConnection()->getSchemaManager();
+        return $this->_em->getConnection()->getSchemaManager();
     }
 }

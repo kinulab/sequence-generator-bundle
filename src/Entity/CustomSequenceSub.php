@@ -16,7 +16,7 @@ class CustomSequenceSub
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: CustomSequence::class, inversedBy: 'subsequences')]
+    #[ORM\ManyToOne(targetEntity: CustomSequence::class, inversedBy: 'subSequences')]
     #[ORM\JoinColumn(onDelete: 'CASCADE')]
     private ?CustomSequence $customSequence = null;
 
