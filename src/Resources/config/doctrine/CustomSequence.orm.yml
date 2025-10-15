@@ -1,6 +1,7 @@
 Kinulab\SequenceGeneratorBundle\Entity\CustomSequence:
   type: entity
   table: sys_custom_sequence
+  repositoryClass: Kinulab\SequenceGeneratorBundle\Repository\SequenceRepository
   id:
     id:
       type: integer

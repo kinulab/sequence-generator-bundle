@@ -11,8 +11,9 @@ services:
 
     sequence_generator.repository:
         class: Kinulab\SequenceGeneratorBundle\Repository\SequenceRepository
-        public: true
-        arguments: ['@doctrine.orm.entity_manager']
+        factory: ['@doctrine.orm.entity_manager', getRepository]
+        arguments:
+            - Kinulab\SequenceGeneratorBundle\Entity\CustomSequence
 
     Kinulab\SequenceGeneratorBundle\Repository\SequenceRepository:
         alias: sequence_generator.repository
